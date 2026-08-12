@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const dotenv = require('dotenv');
+const path = require('path');
 dotenv.config();
 
 const connectDB = require('./config/connectionDB');
@@ -8,11 +9,12 @@ const connectDB = require('./config/connectionDB');
 
 
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 connectDB();
 
 app.use(express.json());
+app.use('/public', express.static(path.join(__dirname, 'public')));
 const cors = require('cors');
 app.use(cors());
 

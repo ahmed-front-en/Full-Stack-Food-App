@@ -28,7 +28,11 @@ function MyRecipes() {
 
 
     const onDeleteRecipe= async(id)=>{
-            await axios.delete(`http://localhost:5000/recipe/${id}`)
+            await axios.delete(`http://localhost:5000/recipe/${id}`,{
+                headers:{
+                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                }
+            })
             .then((resp)=> console.log(resp))
             setRecipes(prev => prev.filter(r =>r._id !== id))
             

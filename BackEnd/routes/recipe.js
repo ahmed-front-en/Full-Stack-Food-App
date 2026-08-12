@@ -1,7 +1,23 @@
 const express = require('express');
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 const Recipe = require('../models/RecipeSchema');
+const requireAuth = require('../middlewares/auth');
 
 const router = express.Router();
+
+const uploadDir = path.join(__dirname, '..', 'public', 'images');
+fs.mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, uploadDir),
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`);
+    },
+});
+const upload = multer({ storage });
 
 
 router.get( '/', async (req, res) => {
@@ -14,7 +30,7 @@ router.get( '/', async (req, res) => {
 
 });
 
-router.post( '/', async (req, res) => {
+router.post( '/', requireAuth, upload.single('coverImage'), async (req, res) => {
     const { title, ingredients, instructions } = req.body; 
     if (!title || !ingredients || !instructions ) {
         return res.status(400).json({ message: 'All fields are required' });
@@ -22,7 +38,9 @@ router.post( '/', async (req, res) => {
     const newRecipe = await Recipe.create({
         title,
         ingredients,
-        instructions
+        instructions,
+        coverImage: req.file ? req.file.filename : undefined,
+        createdBy: req.userId
     });
     res.status(201).json(newRecipe);
 });
@@ -41,13 +59,17 @@ router.get( '/:id', async (req, res) => {
     }
 });
 
-router.put( '/:id', async (req, res) => {
+router.put( '/:id', requireAuth, upload.single('coverImage'), async (req, res) => {
     const { id } = req.params;
     const { title, ingredients, instructions } = req.body;
+    const update = { title, ingredients, instructions };
+    if (req.file) {
+        update.coverImage = req.file.filename;
+    }
     try {
         const updatedRecipe = await Recipe.findByIdAndUpdate(
             id,
-            { title, ingredients, instructions },
+            update,
             { new: true, runValidators: true }
         );
         if (!updatedRecipe) {
@@ -60,7 +82,7 @@ router.put( '/:id', async (req, res) => {
 })
 
 
-router.delete( '/:id', async (req, res) => {
+router.delete( '/:id', requireAuth, async (req, res) => {
     const { id } = req.params;
     try {
         const deletedRecipe = await Recipe.findByIdAndDelete(id);

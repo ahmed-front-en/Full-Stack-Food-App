@@ -6,6 +6,7 @@ import Footer from './components/Footer';
 import MyResipes from './components/MyResipes';
 import MyFavResipes from './components/MyFavResipes';
 import AddResipes from './components/AddResipes';
+import EditRecipe from './pages/EditRecipe';
 
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
         <Route path='/myRecipes'  element={<MyResipes />} />
         <Route path='/myFavRecipes'  element={<MyFavResipes />} />
         <Route path='/addRecipe'  element={<AddResipes />} />
+        <Route path='/EditRecipe/:id'  element={<EditRecipe />} />
       </Routes>
     </BrowserRouter>
     <Footer />

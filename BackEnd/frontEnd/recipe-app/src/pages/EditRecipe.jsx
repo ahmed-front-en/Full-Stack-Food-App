@@ -18,7 +18,7 @@ function EditRecipe() {
         let res = response.data;
         setRecipe({
             title: res.title,
-            ingredients: res.ingredients.join(","),
+            ingredients: res.ingredients,
             instructions: res.instructions,
             coverImage: res.coverImage ? res.coverImage : null // Handle case where coverImage might be null
         })
